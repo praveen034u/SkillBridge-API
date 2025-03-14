@@ -23,26 +23,26 @@ namespace SB.Application.Services.Implementation
             var users = await _userRepository.GetAllAsync();
             return users.Select(u => new UserDto
             {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email,
-                Role = u.Role,
-                IsActive = u.IsActive
+                Id = u.id,
+                FirstName = u.firstName,
+                LastName = u.lastName,
+                Email = u.email,
+                Role = u.role.ToString(),
+                IsActive = u.isActive
             });
         }
 
-        public async Task<UserDto> GetUserByIdAsync(string id)
+        public async Task<UserDto?> GetUserByIdAsync(string id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             return user != null ? new UserDto
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Role = user.Role,
-                IsActive = user.IsActive
+                Id =  user.id,
+                FirstName = user.firstName,
+                LastName = user.lastName,
+                Email = user.email,
+                Role = user.role.ToString(),
+                IsActive = user.isActive
             } : null;
         }
 
@@ -50,12 +50,12 @@ namespace SB.Application.Services.Implementation
         {
             var user = new User
             {
-                Id = userDto.Id,
-                FirstName = userDto.FirstName,
-                LastName = userDto.LastName,
-                Email = userDto.Email,
-                Role = userDto.Role,
-                IsActive = userDto.IsActive
+                id = userDto.Id,
+                firstName = userDto.FirstName,
+                lastName = userDto.LastName,
+                email = userDto.Email,
+                role = userDto.Role,
+                isActive = userDto.IsActive
             };
             await _userRepository.AddAsync(user);
         }
@@ -64,12 +64,12 @@ namespace SB.Application.Services.Implementation
         {
             var user = new User
             {
-                Id = userDto.Id,
-                FirstName = userDto.FirstName,
-                LastName = userDto.LastName,
-                Email = userDto.Email,
-                Role = userDto.Role,
-                IsActive = userDto.IsActive
+                id = userDto.Id,
+                firstName = userDto.FirstName,
+                lastName = userDto.LastName,
+                email = userDto.Email,
+                role = userDto.Role,
+                isActive = userDto.IsActive
             };
             await _userRepository.UpdateAsync(user);
         }

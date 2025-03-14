@@ -12,7 +12,10 @@ namespace SB.Domain.Entities
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string UserId { get; set; }
-        public string Bio { get; set; }
-        public Address Address { get; set; }
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public List<string> Skills { get; set; }
+        public List<string> Education { get; set; }
+        public List<string> WorkExperience { get; set; }
     }
 }

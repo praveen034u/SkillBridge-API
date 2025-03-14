@@ -1,5 +1,8 @@
+using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using SB.Application;
+using SB.Application.Features.Users.Commands;
 using SB.Application.Services.Interface;
 
 [ApiController]
@@ -7,10 +10,19 @@ using SB.Application.Services.Interface;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IMediator _mediator;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IMediator mediator)
     {
         _userService = userService;
+        _mediator = mediator;
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
+    {
+        var userId = await _mediator.Send(command);
+        return Ok(new { UserId = userId });
     }
 
     [HttpGet]

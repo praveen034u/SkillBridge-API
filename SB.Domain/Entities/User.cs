@@ -10,13 +10,14 @@ namespace SB.Domain.Entities
 {
         public class User
         {
-            public Guid Id { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Email { get; set; }
+            public string id { get; set; }
+            public string categoryId { get; set; }
+            public string firstName { get; set; }
+            public string lastName { get; set; }
+            public string email { get; set; }
            
-            public bool IsActive { get; set; }
-            public List<Skill> Skills { get; set; } = new();
-            public Roles Role { get; set; }  // Worker, Employer, admin
+            public bool isActive { get; set; }
+            public List<Skill> skills { get; set; } = new();
+            public String role { get; set; }  // Worker, Employer, admin
     }  
 }

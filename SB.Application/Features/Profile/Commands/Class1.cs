@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SB.Domain.Entities
+namespace SB.Application.Features.Profile.Commands
 {
     class Class1
     {

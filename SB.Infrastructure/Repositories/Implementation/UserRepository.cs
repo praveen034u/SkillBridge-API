@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using SB.Infrastructure.Repositories.Interfaces;
 using System;
 using System.Collections.Concurrent;
@@ -16,11 +17,19 @@ namespace SB.Infrastructure.Repositories.Implementation
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
 
-        public UserRepository(CosmosClient cosmosClient, string databaseName, string containerName)
+        //public UserRepository(CosmosClient cosmosClient, string databaseName, string containerName)
+        //{
+        //    _cosmosClient = cosmosClient;
+        //    _container = _cosmosClient.GetContainer(databaseName, containerName);
+        //}
+
+        public UserRepository(CosmosClient cosmosClient, IConfiguration configuration)
         {
-            _cosmosClient = cosmosClient;
-            _container = _cosmosClient.GetContainer(databaseName, containerName);
+            var databaseName = configuration["CosmosDb:DatabaseName"];
+            var containerName = configuration["CosmosDb:ContainerName"];
+            _container = cosmosClient.GetContainer(databaseName, containerName);
         }
+
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
