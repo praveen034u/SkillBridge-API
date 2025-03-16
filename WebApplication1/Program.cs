@@ -15,6 +15,12 @@ using SB.Infrastructure.Repositories.Interfaces;
 using System.Configuration;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
+using SB.Application;
+using SB.Domain;
+using SB.Application.Queries;
+using SB.Infrastructure.Services;
+using SB.Application.Commands;
+using SB.Application.Features.Profile.Commands;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +59,10 @@ builder.Services.AddMediatR(config =>
     // Register handlers in the current assembly
     config.RegisterServicesFromAssembly(typeof(Program).Assembly);
     config.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly); // Specify the handler assembly
+    config.RegisterServicesFromAssembly(typeof(UploadResumeCommandHandler).Assembly); // Specify the handler assembly
+    config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); // Specify the handler assembly
+    config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); // Specify the handler assembly
+    config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
 });
 
 builder.Services.AddSingleton<CosmosDbContext>(sp =>
@@ -108,16 +118,34 @@ builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
 // Add configuration for AzureOpenAISettings
 builder.Services.Configure<SB.Application.Features.Profile.Commands.OpenAI>(builder.Configuration.GetSection("OpenAI"));
 
+// Register repository
+builder.Services.AddScoped<IJobPostingRepository, JobPostingRepository>();
 // Register IHttpClientFactory
 builder.Services.AddHttpClient();
 
 // Register UploadResumeCommandHandler
-builder.Services.AddScoped<SB.Application.Features.Profile.Commands.UploadResumeCommandHandler>();
+//builder.Services.AddScoped<SB.Application.Features.Profile.Commands.UploadResumeCommandHandler>();
 
 string blobConnectionString = builder.Configuration["ConnectionStringsBlob:AzureBlobStorage"]; // configuration.GetConnectionString("ConnectionStringsBlob:AzureBlobStorage");
-
+// Load settings from configuration
+builder.Services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureCognitiveSearch"));
 // Register BlobServiceClient with DI
 builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
+
+
+
+//builder.Services.Configure<AzureSearchSettings>(
+//    builder.Configuration.GetSection("AzureSearch"));
+
+// Register MediatR (Ensure Application assembly is included)
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly));
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly));
+
+// Register Azure AI Search dependencies
+builder.Services.AddSingleton<JobSearchIndexService>();
+builder.Services.AddSingleton<JobSearchService>();
+
+builder.Services.AddSingleton<IJobSearchRepository, JobSearchRepository>();
 
 var app = builder.Build();
 

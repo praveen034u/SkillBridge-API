@@ -81,20 +81,21 @@ namespace SB.Application.Features.Profile.Commands
             var payload = new
             {
                 messages = chatMessages,
-                max_tokens = 1000,
-                temperature = 0.7
+                max_tokens = 30000,
+                temperature = 0.1
             };
 
             var requestContent = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
             // ✅ Get access token for Azure OpenAI
-            var tokenRequestContext = new TokenRequestContext(new[] { "https://cognitiveservices.azure.com/.default" });
-            var accessToken = await _credential.GetTokenAsync(tokenRequestContext, CancellationToken.None);
+            var tokenRequestContext = new TokenRequestContext(new[] { "https://skillbridge-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" });
+           // var accessToken = await _credential.GetTokenAsync(tokenRequestContext, CancellationToken.None);
+            var accessToken = "5EoMuawWbr96VAaEJlbhIwONrZvTWFdwLIvAJdeYaMR0XFSL3eUcJQQJ99BCACYeBjFXJ3w3AAABACOG0nXy";
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             // ✅ Construct the correct Azure OpenAI URL dynamically
-            var openAiUrl = $"{_endpoint}/openai/deployments/{_deploymentName}/chat/completions?api-version={_apiVersion}";
+            var openAiUrl = $"https://skillbridge-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21";
 
             var response = await _httpClient.PostAsync(openAiUrl, requestContent);
 
