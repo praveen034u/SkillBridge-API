@@ -19,6 +19,8 @@ public class JobSearchModel
 
     [SimpleField(IsFilterable = true)]
     public string Company { get; set; }
+    [SearchableField]
+    public string Skills { get; set; }
 
     [SimpleField(IsFilterable = true, IsSortable = true)]
     public DateTime PostedDate { get; set; }

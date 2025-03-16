@@ -38,8 +38,8 @@ public class JobSearchRepository : IJobSearchRepository
         {
             IncludeTotalCount = true,
             QueryType = SearchQueryType.Simple,
-            SearchFields = { "skills" },  // 🔹 Searches within the "skills" field
-            Select = { "id", "title", "description", "skills", "categoryId" },
+            SearchFields = { "Skills" },  // 🔹 Searches within the "skills" field
+            Select = { "id", "Title", "Description", "Skills" },
             Size = 10  // 🔹 Returns max 10 results
         };
 

@@ -23,7 +23,7 @@ namespace SB.Application.Commands
                 EmployerId = request.EmployerId,
                 Title = request.Title,
                 Description = request.Description,
-                Skills = request.RequiredSkills,
+                Skills = request.RequiredSkills.First(),
                 Location = request.Location,
                 JobType = request.JobType,
                 Salary = request.Salary
