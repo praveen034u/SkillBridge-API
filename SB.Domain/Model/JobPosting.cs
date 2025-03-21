@@ -17,7 +17,7 @@ namespace SB.Domain.Model
         //public List<string> Skills { get; set; }
         public string Skills { get; set; }
         public string Location { get; set; }
-        public DateTime PostedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? PostedDate { get; set; } = DateTime.UtcNow;
         public string JobType { get; set; } // Full-time, Part-time, Contract
         public decimal Salary { get; set; }
     }

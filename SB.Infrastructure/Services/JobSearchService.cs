@@ -27,6 +27,7 @@ namespace SB.Infrastructure.Services
 
         public async Task<List<JobSearchModel>> SearchJobsAsync(string query)
         {
+           
             var options = new SearchOptions
             {
                 IncludeTotalCount = true
@@ -42,6 +43,8 @@ namespace SB.Infrastructure.Services
 
             return results;
         }
+
+     
     }
 
 }

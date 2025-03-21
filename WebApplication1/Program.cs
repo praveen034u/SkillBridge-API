@@ -1,96 +1,89 @@
-using Azure.AI.DocumentIntelligence;
 using Azure;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
+using Azure.AI.DocumentIntelligence;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using SB.Application.Commands;
+using SB.Application.Features.Profile.Commands;
 using SB.Application.Features.Users.Commands;
+using SB.Application.Queries;
 using SB.Application.Services.Implementation;
 using SB.Application.Services.Interface;
-using SB.Infrastructure;
+using SB.Domain;
 using SB.Infrastructure.Persistence;
 using SB.Infrastructure.Repositories.Implementation;
 using SB.Infrastructure.Repositories.Interfaces;
-using System.Configuration;
-using Azure.Storage.Blobs;
-using Microsoft.Extensions.Configuration;
-using SB.Application;
-using SB.Domain;
-using SB.Application.Queries;
 using SB.Infrastructure.Services;
-using SB.Application.Commands;
-using SB.Application.Features.Profile.Commands;
 
 
 var builder = WebApplication.CreateBuilder(args);
 // Access the configuration
 IConfiguration configuration = builder.Configuration;
 
-// Add Cosmos DB Client
+// Register CosmosClient FIRST
 builder.Services.AddSingleton<CosmosClient>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var endpoint = configuration["CosmosDb:AccountEndpoint"];
     var key = configuration["CosmosDb:AccountKey"];
-    return new CosmosClient(endpoint, key);
-});
 
-// Add Application Services
-//builder.Services.AddScoped<IProductRepository, ProductRepository>();
-//builder.Services.AddScoped<IProductService, ProductService>();
-
-
-//builder.Services.AddSingleton<CosmosClient>(sp =>
-//{
-//    var configuration = sp.GetRequiredService<IConfiguration>();
-//    var endpoint = configuration["CosmosDb:AccountEndpoint"];
-//    var key =  configuration["CosmosDb:AccountKey"];
-//    return new CosmosClient(endpoint, key);
-//});
-
-builder.Services.AddScoped<UserRepository>();
-
-
-builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddMediatR(config =>
-{
-    // Register handlers in the current assembly
-    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
-    config.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly); // Specify the handler assembly
-    config.RegisterServicesFromAssembly(typeof(UploadResumeCommandHandler).Assembly); // Specify the handler assembly
-    config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); // Specify the handler assembly
-    config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); // Specify the handler assembly
-    config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
-});
-
-builder.Services.AddSingleton<CosmosDbContext>(sp =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    var endpoint = configuration["CosmosDb1:ConnectionString"];
-    var databaseName = configuration["CosmosDb1:DatabaseName"];
-
-    if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(databaseName))
+    if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(key))
     {
         throw new ArgumentNullException("Cosmos DB configuration is missing.");
     }
 
-    return new CosmosDbContext(endpoint, databaseName);
+    return new CosmosClient(endpoint, key);
+});
+
+// Inject CosmosClient into DbContext
+builder.Services.AddSingleton<CosmosDbContext>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var databaseName = configuration["CosmosDb:DatabaseName"];
+
+    return new CosmosDbContext(cosmosClient, databaseName);
 });
 
 builder.Services.AddSingleton<ProfileDbContext>(sp =>
 {
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var endpoint = configuration["CosmosDb1:ConnectionString"];
-    var databaseName = configuration["CosmosDb1:DatabaseName"];
+    var databaseName = configuration["CosmosDb:DatabaseName"];
 
-    if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(databaseName))
-    {
-        throw new ArgumentNullException("Cosmos DB configuration is missing.");
-    }
+    return new ProfileDbContext(cosmosClient, databaseName);
+});
 
-    return new ProfileDbContext(endpoint, databaseName);
+builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
+{
+    string endpoint = builder.Configuration["DocumentIntelligence:Endpoint"];
+    string apiKey = builder.Configuration["DocumentIntelligence:ApiKey"];
+
+    var credential = new AzureKeyCredential(apiKey);
+    var client = new DocumentIntelligenceClient(new Uri(endpoint), credential);
+    return client;
+});
+
+
+// Add Application Services
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+// Register Azure AI Search dependencies
+builder.Services.AddSingleton<JobSearchIndexService>();
+builder.Services.AddSingleton<JobSearchService>();
+
+builder.Services.AddSingleton<IJobSearchRepository, JobSearchRepository>();
+builder.Services.AddSingleton<IUserProfileRepository, UserProfileRepository>();
+
+builder.Services.AddMediatR(config =>
+{
+    // Register handlers in the current assembly
+    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    config.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
+    config.RegisterServicesFromAssembly(typeof(UploadResumeCommandHandler).Assembly); 
+    config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); 
+    config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); 
+    config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
 });
 
 // Add Controllers
@@ -105,15 +98,7 @@ builder.Services.AddSwaggerGen(c =>
         Format = "binary"
     });
 });
-builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
-{
-    string endpoint = builder.Configuration["DocumentIntelligence:Endpoint"];
-    string apiKey = builder.Configuration["DocumentIntelligence:ApiKey"];
 
-    var credential = new AzureKeyCredential(apiKey);
-    var client = new DocumentIntelligenceClient(new Uri(endpoint), credential);
-    return client;
-});
 
 // Add configuration for AzureOpenAISettings
 builder.Services.Configure<SB.Application.Features.Profile.Commands.OpenAI>(builder.Configuration.GetSection("OpenAI"));
@@ -129,6 +114,8 @@ builder.Services.AddHttpClient();
 string blobConnectionString = builder.Configuration["ConnectionStringsBlob:AzureBlobStorage"]; // configuration.GetConnectionString("ConnectionStringsBlob:AzureBlobStorage");
 // Load settings from configuration
 builder.Services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureCognitiveSearch"));
+builder.Services.Configure<DocumentIntelligence>(configuration.GetSection("DocumentIntelligence"));
+builder.Services.Configure<CosmosDb>(configuration.GetSection("CosmosDb"));
 // Register BlobServiceClient with DI
 builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
 
@@ -141,13 +128,10 @@ builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly));
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly));
 
-// Register Azure AI Search dependencies
-builder.Services.AddSingleton<JobSearchIndexService>();
-builder.Services.AddSingleton<JobSearchService>();
 
-builder.Services.AddSingleton<IJobSearchRepository, JobSearchRepository>();
 
 var app = builder.Build();
+builder.Logging.AddConsole();
 
 if (app.Environment.IsDevelopment())
 {

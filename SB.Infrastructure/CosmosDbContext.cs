@@ -6,13 +6,19 @@ namespace SB.Infrastructure.Persistence;
 
 public class CosmosDbContext
 {
+
     private readonly CosmosClient _client;
     private readonly Container _userContainer;
+    
 
-    public CosmosDbContext(string connectionString, string databaseName)
+    public CosmosDbContext(CosmosClient client, string databaseName)
     {
-        _client = new CosmosClient(connectionString);
-        _userContainer = _client.GetContainer(databaseName, "SB_Container");
+        _client = client;
+        _userContainer = _client.GetContainer(databaseName, "SB_Container"); // Hardcoding container if it's fixed
+    }
+    public Container GetContainer()
+    {
+        return _userContainer;
     }
 
     public async Task AddUserAsync(User user)
@@ -24,7 +30,7 @@ public class CosmosDbContext
     {
         var query = new QueryDefinition("SELECT * FROM c WHERE c.email = @Email")
             .WithParameter("@Email", email);
-       
+
         var iterator = _userContainer.GetItemQueryIterator<User>(query);
         if (iterator.HasMoreResults)
         {
@@ -34,17 +40,23 @@ public class CosmosDbContext
 
                 return response.FirstOrDefault();
             }
+            catch (CosmosException ex)
+            {
+                Console.WriteLine($"Error: {ex.StatusCode}, SubStatus: {ex.SubStatusCode}, Message: {ex.Message}");
+            }
             catch (Exception ex)
             {
 
                 throw;
             }
-           
+
         }
 
         return null;
     }
 }
+
+
 
 
 

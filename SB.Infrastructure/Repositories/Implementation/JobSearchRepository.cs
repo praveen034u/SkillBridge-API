@@ -42,10 +42,34 @@ public class JobSearchRepository : IJobSearchRepository
             Select = { "id", "Title", "Description", "Skills" },
             Size = 10  // 🔹 Returns max 10 results
         };
+        await RunIndexer();
 
         var response = await _searchClient.SearchAsync<JobPosting>(query, options);
 
         return response.Value.GetResults().Select(r => r.Document).ToList();
+    }
+    public async Task RunIndexer()
+    {
+        string searchServiceName = "searchskillservice";
+        string indexerName = "skillsearchindexer";
+        string apiKey = "W2v9pWw62YtaBu3UVnzZeGqjHwbbULhdlagl1My0UpAzSeACjX15";
+
+        string url = $"https://{searchServiceName}.search.windows.net/indexers/{indexerName}/run?api-version=2023-07-01-Preview";
+
+        using HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Add("api-key", apiKey);
+
+        HttpResponseMessage response = await client.PostAsync(url, null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Indexer triggered successfully.");
+        }
+        else
+        {
+            string error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error triggering indexer: {error}");
+        }
     }
 }
 

@@ -23,7 +23,7 @@ public class JobSearchModel
     public string Skills { get; set; }
 
     [SimpleField(IsFilterable = true, IsSortable = true)]
-    public DateTime PostedDate { get; set; }
+    public DateTime? PostedDate { get; set; }
 }
 
 

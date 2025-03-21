@@ -17,13 +17,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration["CosmosDb1:ConnectionString"];
-        var databaseName = configuration["CosmosDb1:DatabaseName"];
+       // var connectionString = configuration["CosmosDb:ConnectionString"];
+        var databaseName = configuration["CosmosDb:DatabaseName"];
 
-        services.AddSingleton(new CosmosDbContext(connectionString, databaseName));
-        services.AddSingleton(new ProfileDbContext(connectionString, databaseName));
+        //services.AddSingleton(new CosmosDbContext(connectionString, databaseName));
+        //services.AddSingleton(new ProfileDbContext(connectionString, databaseName));
         services.AddSingleton<SB.Application.Services.Interface.IUserService, SB.Application.Services.Implementation.UserService>();
         services.AddSingleton<IJobPostingRepository, JobPostingRepository>();
+        services.AddSingleton<IUserProfileRepository, UserProfileRepository>();
         services.AddSingleton<SB.Infrastructure.Repositories.Interfaces.IUserRepository, SB.Infrastructure.Repositories.Implementation.UserRepository>();
         //services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureSearch"));
        //services.AddSingleton<IJobSearchRepository, JobSearchRepository>();

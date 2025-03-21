@@ -7,14 +7,22 @@ namespace SB.Infrastructure.Persistence;
 
 public class ProfileDbContext
 {
+   
+
     private readonly CosmosClient _client;
     private readonly Container _profileContainer;
 
-    public ProfileDbContext(string connectionString, string databaseName)
+    public ProfileDbContext(CosmosClient client, string databaseName)
     {
-        _client = new CosmosClient(connectionString);
-        _profileContainer = _client.GetContainer(databaseName, "Profiles");
+        _client = client;
+        _profileContainer = _client.GetContainer(databaseName, "SB_Container"); // Hardcoding container if it's fixed
     }
+
+    //public ProfileDbContext(string connectionString, string databaseName)
+    //{
+    //    _client = new CosmosClient(connectionString);
+    //    _profileContainer = _client.GetContainer(databaseName, "Profiles");
+    //}
 
     public async Task AddProfileAsync(Profile profile)
     {
