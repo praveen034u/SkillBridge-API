@@ -12,7 +12,7 @@ using Container = Microsoft.Azure.Cosmos.Container;
 
 namespace SB.Infrastructure.Repositories.Implementation
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : IUserRepository<Emplo>
     {
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;

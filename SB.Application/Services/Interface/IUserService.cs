@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace SB.Application.Services.Interface
 {
-    public interface IUserService
+    public interface IUserService<T>
     {
-        Task<IEnumerable<UserDto>> GetAllUsersAsync();
-        Task<UserDto> GetUserByIdAsync(string id);
-        Task AddUserAsync(UserDto userDto);
-        Task UpdateUserAsync(UserDto userDto);
+        Task<IEnumerable<T>> GetAllUsersAsync();
+        Task<T> GetUserByIdAsync(string id);
+        Task AddUserAsync(T userDto);
+        Task UpdateUserAsync(T userDto);
         Task DeleteUserAsync(string id);
     }
 }

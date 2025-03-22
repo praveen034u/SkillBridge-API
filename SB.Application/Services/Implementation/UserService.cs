@@ -9,19 +9,24 @@ using System.Threading.Tasks;
 
 namespace SB.Application.Services.Implementation
 {
-    public class UserService : IUserService
+    public class EmployeeUserService : IUserService<EmployeeUser>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository<EmployeeUser> _userRepository;
 
-        public UserService(IUserRepository userRepository)
+        public EmployeeUserService(IUserRepository<EmployeeUser> userRepository)
         {
             _userRepository = userRepository;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task DeleteUserAsync(string id)
+        {
+            await _userRepository.DeleteAsync(id);
+        }
+
+        Task<IEnumerable<EmployeeUser>> IUserService<EmployeeUser>.GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllAsync();
-            return users.Select(u => new UserDto
+            return users.Select(u => new EmployeeUser
             {
                 Id = u.id,
                 FirstName = u.firstName,
@@ -32,12 +37,12 @@ namespace SB.Application.Services.Implementation
             });
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(string id)
+        Task<EmployeeUser> IUserService<EmployeeUser>.GetUserByIdAsync(string id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             return user != null ? new UserDto
             {
-                Id =  user.id,
+                Id = user.id,
                 FirstName = user.firstName,
                 LastName = user.lastName,
                 Email = user.email,
@@ -46,7 +51,7 @@ namespace SB.Application.Services.Implementation
             } : null;
         }
 
-        public async Task AddUserAsync(UserDto userDto)
+        public Task AddUserAsync(EmployeeUser userDto)
         {
             var user = new User
             {
@@ -60,7 +65,7 @@ namespace SB.Application.Services.Implementation
             await _userRepository.AddAsync(user);
         }
 
-        public async Task UpdateUserAsync(UserDto userDto)
+        public Task UpdateUserAsync(EmployeeUser userDto)
         {
             var user = new User
             {
@@ -72,11 +77,6 @@ namespace SB.Application.Services.Implementation
                 isActive = userDto.IsActive
             };
             await _userRepository.UpdateAsync(user);
-        }
-
-        public async Task DeleteUserAsync(string id)
-        {
-            await _userRepository.DeleteAsync(id);
         }
     }
 
