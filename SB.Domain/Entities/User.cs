@@ -6,8 +6,9 @@ namespace SB.Domain.Entities
         public class User
         {
             public string id { get; set; } = Guid.NewGuid().ToString();
+            public string categoryId { get; set; } = Guid.NewGuid().ToString();
           
-            public JSObject userProfile { get; set; }
+            public string userProfile { get; set; } // json format 
 
             public bool isActive { get; set; } = true;
          

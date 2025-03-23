@@ -23,20 +23,21 @@ public class JobRecommendationsHandler : IRequestHandler<JobRecommendationsQuery
 
     public async Task<List<JobPosting>> Handle(JobRecommendationsQuery request, CancellationToken cancellationToken)
     {
-        var userProfile = await _userProfileRepository.GetUserProfileByIdAsync(request.UserId);
-        if (userProfile == null) return new List<JobPosting>();
+        //var userProfile = await _userProfileRepository.GetUserProfileByIdAsync(request.UserId);
+        //if (userProfile == null) return new List<JobPosting>();
 
-        string searchQuery = string.Join(" OR ", userProfile.skills); // Match user skills to jobs
-        var options = new SearchOptions { Size = 10 };
-        var response = await _searchClient.SearchAsync<JobPosting>(searchQuery, options);
+        //string searchQuery = string.Join(" OR ", userProfile.skills); // Match user skills to jobs
+        //var options = new SearchOptions { Size = 10 };
+        //var response = await _searchClient.SearchAsync<JobPosting>(searchQuery, options);
 
-        List<JobPosting> jobs = new List<JobPosting>();
-        await foreach (var result in response.Value.GetResultsAsync())
-        {
-            jobs.Add(result.Document);
-        }
+        //List<JobPosting> jobs = new List<JobPosting>();
+        //await foreach (var result in response.Value.GetResultsAsync())
+        //{
+        //    jobs.Add(result.Document);
+        //}
 
-        return jobs;
+        // return jobs;
+        return null;
     }
 }
 

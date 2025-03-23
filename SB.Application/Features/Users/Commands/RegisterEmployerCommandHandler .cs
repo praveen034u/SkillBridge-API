@@ -1,20 +1,14 @@
 ﻿using MediatR;
 using Microsoft.Azure.Cosmos;
-using SB.Domain.Entities;
-using SB.Domain.ValueObjects;
 using SB.Infrastructure.Persistence;
-using System.ComponentModel;
 using System.Text.Json;
 
-
 // Application Layer - Register User Command
-
-
 namespace SB.Application.Features.Users.Commands;
 
-public class RegisterUserCommand :  IRequest<string>
+public class RegisterEmployerCommand :  IRequest<string>
 {
-    public EmployeeUser UserProfile { get; set; }
+    public EmployerUser UserProfile { get; set; }
     
     //public string FirstName { get; set; }
     //public string LastName { get; set; }
@@ -28,16 +22,16 @@ public class RegisterUserCommand :  IRequest<string>
     //public string Country { get; set; }
 }
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, string>
+public class RegisterEmployerCommandHandler : IRequestHandler<RegisterEmployerCommand, string>
 {
     private readonly CosmosDbContext _dbContext;
 
-    public RegisterUserCommandHandler(CosmosDbContext dbContext)
+    public RegisterEmployerCommandHandler(CosmosDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<string> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(RegisterEmployerCommand request, CancellationToken cancellationToken)
     {
         // Ensure the container exists before inserting data
         var container = _dbContext.GetContainer();
@@ -57,9 +51,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
             categoryId= Guid.NewGuid().ToString(),
             isActive=true,
             userProfile= JsonSerializer.Serialize(new { 
-                name = request.UserProfile.Name, 
+                name = JsonSerializer.Serialize(request.UserProfile.Name), 
                 email = request.UserProfile.Email,
-                address= request.UserProfile,
+                address= JsonSerializer.Serialize( request.UserProfile),
                 phone=request.UserProfile.PhoneNumber}) ,
             role = "Employee" //request.Role.ToString(), hadcoded later will combine with employer
             //skills = request.Skills.Select(skill => new Skill(skill, 1)).ToList()

@@ -22,10 +22,10 @@ public static class DependencyInjection
 
         //services.AddSingleton(new CosmosDbContext(connectionString, databaseName));
         //services.AddSingleton(new ProfileDbContext(connectionString, databaseName));
-        services.AddSingleton<SB.Application.Services.Interface.IUserService, SB.Application.Services.Implementation.UserService>();
+        //services.AddSingleton<SB.Application.Services.Interface.IUserService, SB.Application.Services.Implementation.UserService>();
         services.AddSingleton<IJobPostingRepository, JobPostingRepository>();
         services.AddSingleton<IUserProfileRepository, UserProfileRepository>();
-        services.AddSingleton<SB.Infrastructure.Repositories.Interfaces.IUserRepository, SB.Infrastructure.Repositories.Implementation.UserRepository>();
+       // services.AddSingleton<SB.Infrastructure.Repositories.Interfaces.IUserRepository, SB.Infrastructure.Repositories.Implementation.UserRepository>();
         //services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureSearch"));
        //services.AddSingleton<IJobSearchRepository, JobSearchRepository>();
 

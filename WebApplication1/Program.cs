@@ -2,6 +2,8 @@ using Azure;
 using Azure.AI.DocumentIntelligence;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Win32;
+using SB.Application;
 using SB.Application.Commands;
 using SB.Application.Features.Profile.Commands;
 using SB.Application.Features.Users.Commands;
@@ -65,9 +67,21 @@ builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
 
 
 // Add Application Services
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddScoped<UserRepository>();
+builder.Services.AddSingleton<IUserService<EmployeeUser>>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    return new UserService<EmployeeUser>(cosmosClient, "SB_database", "Users");
+});
+
+builder.Services.AddSingleton<IUserService<EmployerUser>>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    return new UserService<EmployerUser>(cosmosClient, "SB_database", "Users");
+});
+
+
+builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>));
 // Register Azure AI Search dependencies
 builder.Services.AddSingleton<JobSearchIndexService>();
 builder.Services.AddSingleton<JobSearchService>();

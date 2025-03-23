@@ -1,35 +1,33 @@
 ﻿using SB.Domain.Enums;
+using SB.Domain.ValueObjects;
+using System.Text.Json.Serialization;
 
 namespace SB.Application
 {
     public class User
     {
-        public string Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public string Role { get; set; }
+        [JsonIgnore]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        [JsonIgnore]
+        public string categoryId { get; set; } = Guid.NewGuid().ToString();
+        [JsonIgnore]
         public bool IsActive { get; set; }
-
-        public string PhoneNumber { get; set; } // Contact Number (Optional)
-
-        public string Address { get; set; }
-        public string City { get; set; }
-
-        public string State { get; set; }
-        public string Country { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Profile Creation Date
+        public Name Name { get; set; }
+        public Address Address { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
     }
 
     public class EmployeeUser : User
     {
-        public List<string> Skills { get; set; } // List of User Skills
-        public string ExperienceLevel { get; set; } // Beginner, Intermediate, Expert
+        public List<Skill> Skills { get; set; } // List of User Skills along with proficiency level i.e. Beginner, Intermediate, Expert                                                
         public List<string> Certifications { get; set; } // Certifications
         public List<string> AppliedJobs { get; set; } // List of Job IDs Applied To
-        public byte[] ResumeUrl { get; set; } // Link to Resume (Azure Blob Storage)
+       // public byte[] ResumeUrl { get; set; } // Link to Resume (Azure Blob Storage)
 
-        public string LinkedProfileUrl { get; set; } // Contact Number (Optional)
+        public string LinkedInProfileUrl { get; set; } // Contact Number (Optional)
+        [JsonIgnore]
+        public string Role { get; set; } = "Employee";
     }
 
     public class EmployerUser : User
@@ -39,6 +37,8 @@ namespace SB.Application
         public string CompanyWebsiteUrl { get; set; }
 
         public IList<CompanyLocation> CompanyLocations { get; set; }
+        [JsonIgnore]
+        public string Role { get; set; } = "Employer";
     }
 
     public class CompanyLocation

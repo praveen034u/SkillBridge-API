@@ -1,18 +1,11 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using SB.Infrastructure.Repositories.Interfaces;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Container = Microsoft.Azure.Cosmos.Container;
 
 namespace SB.Infrastructure.Repositories.Implementation
 {
-    public class UserRepository : IUserRepository<Emplo>
+    public class UserRepository<T> : IUserRepository<T> where T : class
     {
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
@@ -70,15 +63,6 @@ namespace SB.Infrastructure.Repositories.Implementation
             await _container.DeleteItemAsync<User>(id, new PartitionKey(id));
         }
 
-        Task<IEnumerable<Domain.Entities.User>> IUserRepository.GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Domain.Entities.User> IUserRepository.GetByIdAsync(string id)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task AddAsync(Domain.Entities.User user)
         {
@@ -86,6 +70,26 @@ namespace SB.Infrastructure.Repositories.Implementation
         }
 
         public Task UpdateAsync(Domain.Entities.User user)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<T>> IUserRepository<T>.GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<T> IUserRepository<T>.GetByIdAsync(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddAsync(T user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(T user)
         {
             throw new NotImplementedException();
         }

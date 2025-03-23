@@ -57,7 +57,7 @@ namespace SB.Infrastructure.Repositories.Implementation
                 {
                     FeedResponse<Domain.Entities.User> response = await resultSet.ReadNextAsync();
                     return response.FirstOrDefault();
-                }
+                } 
             }
             catch (CosmosException ex)
             {
