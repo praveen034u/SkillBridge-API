@@ -76,7 +76,7 @@ namespace SB.Application.Features.Profile.Commands
             {
             new { role = "system", content = "Extract skills and experience from the resume text." },
             new { role = "user", content = resumeText }
-        };
+            };
 
             var payload = new
             {

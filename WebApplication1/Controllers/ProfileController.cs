@@ -16,19 +16,19 @@ public class ProfileController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("upload-resume")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadResume([FromForm] UploadResumeRequest request)
-    {
-        // Now pass the file and userId to MediatR Command
-        var command = new SB.Application.Features.Profile.Commands.UploadResumeCommand
-        {
-            ResumeFile = request.ResumeFile,
-            //UserId = request.UserId
-        };
+    //[HttpPost("upload-resume")]
+    //[Consumes("multipart/form-data")]
+    //public async Task<IActionResult> UploadResume([FromForm] UploadResumeRequest request)
+    //{
+    //    // Now pass the file and userId to MediatR Command
+    //    var command = new SB.Application.Features.Profile.Commands.UploadResumeCommand
+    //    {
+    //        ResumeFile = request.ResumeFile,
+    //        //UserId = request.UserId
+    //    };
 
-        var profileId = await _mediator.Send(command);
-        return Ok(new { ProfileId = profileId });
-    }
+    //    var profileId = await _mediator.Send(command);
+    //    return Ok(new { ProfileId = profileId });
+    //}
 
 }

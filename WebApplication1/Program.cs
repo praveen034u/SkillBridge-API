@@ -3,6 +3,7 @@ using Azure.AI.DocumentIntelligence;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Win32;
+using SB.API;
 using SB.Application;
 using SB.Application.Commands;
 using SB.Application.Features.Profile.Commands;
@@ -15,6 +16,7 @@ using SB.Infrastructure.Persistence;
 using SB.Infrastructure.Repositories.Implementation;
 using SB.Infrastructure.Repositories.Interfaces;
 using SB.Infrastructure.Services;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +100,7 @@ builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
+    config.RegisterServicesFromAssemblies(typeof(UploadResumeHandler).Assembly);
 });
 
 // Add Controllers
@@ -111,6 +114,7 @@ builder.Services.AddSwaggerGen(c =>
         Type = "string",
         Format = "binary"
     });
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
 
@@ -132,6 +136,12 @@ builder.Services.Configure<DocumentIntelligence>(configuration.GetSection("Docum
 builder.Services.Configure<CosmosDb>(configuration.GetSection("CosmosDb"));
 // Register BlobServiceClient with DI
 builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
+
+// Register MediatR
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+// Register BlobStorageService
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
 
 
