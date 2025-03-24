@@ -29,31 +29,7 @@ public class UsersController : ControllerBase
     //    return Ok(new { UserId = userId });
     //}
 
-    [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser([FromBody] dynamic userDto)
-    {
-        if (userDto == null)
-        {
-            return BadRequest("Invalid user data.");
-        }
-
-        string userType = userDto.GetProperty("userType").GetString();
-
-        if (userType == "employee")
-        {
-            var employee = JsonSerializer.Deserialize<EmployeeUser>(userDto.ToString());
-            await _employeeService.AddUserAsync(employee); 
-            return CreatedAtAction(nameof(GetUserById), new { id = employee.Id }, employee);
-        }
-        else if (userType == "employer")
-        {
-            var employer = JsonSerializer.Deserialize<EmployerUser>(userDto.ToString());
-            await _employerService.AddUserAsync(employer);
-            return CreatedAtAction(nameof(GetUserById), new { id = employer.Id }, employer);
-        }
-
-        return BadRequest("Invalid user type. Accepted values: 'employee', 'employer'.");
-    }
+    
 
     [HttpPost("registerEmployee")]
     public async Task<IActionResult> RegisterEmployee([FromBody] RegisterUserCommand command)
@@ -80,14 +56,20 @@ public class UsersController : ControllerBase
     }
 
    
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(string id)
+    [HttpGet("Employee/{id}")]
+    public async Task<IActionResult> GetEmployeeById(string id)
+    {
+        var employer = await _employerService.GetUserByIdAsync(id);
+        if (employer != null) return Ok(employer);
+
+        return NotFound($"User with ID {id} not found.");
+    }
+
+    [HttpGet("Employer/{id}")]
+    public async Task<IActionResult> GetEmployerById(string id)
     {
         var employee = await _employeeService.GetUserByIdAsync(id);
         if (employee != null) return Ok(employee);
-
-        var employer = await _employerService.GetUserByIdAsync(id);
-        if (employer != null) return Ok(employer);
 
         return NotFound($"User with ID {id} not found.");
     }
