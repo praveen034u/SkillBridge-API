@@ -49,6 +49,16 @@ public class JobsController : ControllerBase
             return StatusCode(500, $"Internal Server Error: {ex.Message}");
         }
     }
+
+    //[HttpPost("extract-skills")]
+    //public async Task<IActionResult> ExtractSkills([FromForm] IFormFile file)
+    //{
+    //    if (file == null || file.Length == 0)
+    //        return BadRequest("No file uploaded");
+
+    //    var result = await _mediator.Send(new ExtractSkillsCommand(file));
+    //    return Ok(result);
+    //}
 }
 
 

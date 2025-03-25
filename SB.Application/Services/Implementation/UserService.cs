@@ -34,11 +34,11 @@ namespace SB.Application.Services.Implementation
             return results;
         }
 
-        public async Task<T> GetUserByIdAsync(string id)
+        public async Task<T> GetUserByIdAsync(string id, string partitionKey)
         {
             try
             {
-                ItemResponse<T> response = await _container.ReadItemAsync<T>(id, new PartitionKey(id));
+                ItemResponse<T> response = await _container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)

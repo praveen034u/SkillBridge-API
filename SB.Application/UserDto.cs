@@ -16,6 +16,7 @@ namespace SB.Application
         public Address Address { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
+
     }
 
     public class EmployeeUser : User
@@ -37,7 +38,7 @@ namespace SB.Application
 
         public string CompanyWebsiteUrl { get; set; }
 
-        public IList<CompanyLocation> CompanyLocations { get; set; }
+        public List<CompanyLocation> CompanyLocations { get; set; }
         [JsonIgnore]
         public string Role { get; set; } = "Employer";
     }

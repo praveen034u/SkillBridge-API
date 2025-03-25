@@ -73,13 +73,13 @@ builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
 builder.Services.AddSingleton<IUserService<EmployeeUser>>(sp =>
 {
     var cosmosClient = sp.GetRequiredService<CosmosClient>();
-    return new UserService<EmployeeUser>(cosmosClient, "SB_database", "Users");
+    return new UserService<EmployeeUser>(cosmosClient, "SB_database", "SB_Container");
 });
 
 builder.Services.AddSingleton<IUserService<EmployerUser>>(sp =>
 {
     var cosmosClient = sp.GetRequiredService<CosmosClient>();
-    return new UserService<EmployerUser>(cosmosClient, "SB_database", "Users");
+    return new UserService<EmployerUser>(cosmosClient, "SB_database", "SB_Container");
 });
 
 

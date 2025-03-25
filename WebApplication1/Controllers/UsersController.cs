@@ -10,13 +10,13 @@ using System.Text.Json;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService<EmployeeUser> _employeeService;
     private readonly IUserService<EmployerUser> _employerService;
+    private readonly IUserService<EmployeeUser> _employeeService;
     private readonly IMediator _mediator;
 
-    public UsersController(IUserService<EmployeeUser> userService, IUserService<EmployerUser> employerService, IMediator mediator)
+    public UsersController(IUserService<EmployeeUser> employeeService, IUserService<EmployerUser> employerService, IMediator mediator)
     {
-        _employeeService = userService;
+        _employeeService = employeeService;
         _employerService = employerService;
         _mediator = mediator;
     }
@@ -47,19 +47,19 @@ public class UsersController : ControllerBase
 
    
     [HttpGet("Employee/{id}")]
-    public async Task<IActionResult> GetEmployeeById(string id)
+    public async Task<IActionResult> GetEmployeeById(string id, string partitionKey)
     {
-        var employer = await _employerService.GetUserByIdAsync(id);
+        var employer = await _employeeService.GetUserByIdAsync(id, partitionKey);
         if (employer != null) return Ok(employer);
 
         return NotFound($"User with ID {id} not found.");
     }
 
     [HttpGet("Employer/{id}")]
-    public async Task<IActionResult> GetEmployerById(string id)
+    public async Task<IActionResult> GetEmployerById(string id, string partitionKey)
     {
-        var employee = await _employeeService.GetUserByIdAsync(id);
-        if (employee != null) return Ok(employee);
+        var employer = await _employerService.GetUserByIdAsync(id, partitionKey);
+        if (employer != null) return Ok(employer);
 
         return NotFound($"User with ID {id} not found.");
     }

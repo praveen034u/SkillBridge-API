@@ -2,6 +2,9 @@
 using Microsoft.Azure.Cosmos;
 using SB.Infrastructure.Persistence;
 using System.Text.Json;
+using Mapster;
+using MapsterMapper;
+using Microsoft.Extensions.Hosting;
 
 // Application Layer - Register User Command
 namespace SB.Application.Features.Users.Commands;
@@ -25,10 +28,12 @@ public class RegisterEmployerCommand :  IRequest<string>
 public class RegisterEmployerCommandHandler : IRequestHandler<RegisterEmployerCommand, string>
 {
     private readonly CosmosDbContext _dbContext;
+    private Mapper mapper;
 
     public RegisterEmployerCommandHandler(CosmosDbContext dbContext)
     {
         _dbContext = dbContext;
+        mapper = new Mapper();
     }
 
     public async Task<string> Handle(RegisterEmployerCommand request, CancellationToken cancellationToken)
@@ -43,19 +48,28 @@ public class RegisterEmployerCommandHandler : IRequestHandler<RegisterEmployerCo
         {
             throw new Exception("User already exists with this email.");
         }
-  
+        var userInfo = new SB.Domain.Entities.UserInfo
+        {
+            Address = request.UserProfile.Address,
+            name = request.UserProfile.Name,
+            Email = request.UserProfile.Email,
+            Phone = request.UserProfile.PhoneNumber
+        };
+
+
         // Create new user
-        var user = new Domain.Entities.User
+        var user = new Domain.Entities.EmployerUser
         {
             id= Guid.NewGuid().ToString(),
             categoryId= Guid.NewGuid().ToString(),
             isActive=true,
-            userProfile= JsonSerializer.Serialize(new { 
-                name = JsonSerializer.Serialize(request.UserProfile.Name), 
-                email = request.UserProfile.Email,
-                address= JsonSerializer.Serialize( request.UserProfile),
-                phone=request.UserProfile.PhoneNumber}) ,
-            role = "Employee" //request.Role.ToString(), hadcoded later will combine with employer
+            userProfile= JsonSerializer.Serialize(userInfo) ,
+            Role="Employer",
+            CompanyLocations= mapper.Map<List<Domain.Entities.CompanyLocation>>(request.UserProfile?.CompanyLocations),
+            CompanyName= request.UserProfile.CompanyName,
+            CompanyWebsiteUrl= request.UserProfile.CompanyWebsiteUrl
+
+            //request.Role.ToString(), hadcoded later will combine with employer
             //skills = request.Skills.Select(skill => new Skill(skill, 1)).ToList()
         };
         try
