@@ -23,7 +23,8 @@ namespace SB.Application
         public List<Skill> Skills { get; set; } // List of User Skills along with proficiency level i.e. Beginner, Intermediate, Expert                                                
         public List<string> Certifications { get; set; } // Certifications
         public List<string> AppliedJobs { get; set; } // List of Job IDs Applied To
-       // public byte[] ResumeUrl { get; set; } // Link to Resume (Azure Blob Storage)
+       
+        public string ResumeUrl { get; set; } // Link to Resume (Azure Blob Storage)
 
         public string LinkedInProfileUrl { get; set; } // Contact Number (Optional)
         [JsonIgnore]
