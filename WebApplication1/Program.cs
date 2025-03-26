@@ -2,6 +2,9 @@ using Azure;
 using Azure.AI.DocumentIntelligence;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Win32;
+using SB.API;
+using SB.Application;
 using SB.Application.Commands;
 using SB.Application.Features.Profile.Commands;
 using SB.Application.Features.Users.Commands;
@@ -13,6 +16,7 @@ using SB.Infrastructure.Persistence;
 using SB.Infrastructure.Repositories.Implementation;
 using SB.Infrastructure.Repositories.Interfaces;
 using SB.Infrastructure.Services;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,9 +69,21 @@ builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
 
 
 // Add Application Services
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddScoped<UserRepository>();
+builder.Services.AddSingleton<IUserService<EmployeeUser>>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    return new UserService<EmployeeUser>(cosmosClient, "SB_database", "SB_Container");
+});
+
+builder.Services.AddSingleton<IUserService<EmployerUser>>(sp =>
+{
+    var cosmosClient = sp.GetRequiredService<CosmosClient>();
+    return new UserService<EmployerUser>(cosmosClient, "SB_database", "SB_Container");
+});
+
+
+builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>));
 // Register Azure AI Search dependencies
 builder.Services.AddSingleton<JobSearchIndexService>();
 builder.Services.AddSingleton<JobSearchService>();
@@ -84,6 +100,7 @@ builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
+    config.RegisterServicesFromAssemblies(typeof(UploadResumeHandler).Assembly);
 });
 
 // Add Controllers
@@ -97,6 +114,7 @@ builder.Services.AddSwaggerGen(c =>
         Type = "string",
         Format = "binary"
     });
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
 
@@ -118,6 +136,12 @@ builder.Services.Configure<DocumentIntelligence>(configuration.GetSection("Docum
 builder.Services.Configure<CosmosDb>(configuration.GetSection("CosmosDb"));
 // Register BlobServiceClient with DI
 builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
+
+// Register MediatR
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+// Register BlobStorageService
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
 
 

@@ -1,4 +1,5 @@
 ﻿using SB.Domain.ValueObjects;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SB.Domain.Entities
 {
@@ -6,12 +7,51 @@ namespace SB.Domain.Entities
         {
             public string id { get; set; } = Guid.NewGuid().ToString();
             public string categoryId { get; set; } = Guid.NewGuid().ToString();
-            public string firstName { get; set; }
-            public string lastName { get; set; }
-            public string email { get; set; }
+          
+            public string userProfile { get; set; } // json format 
 
-        public bool isActive { get; set; } = true;
-            public List<Skill> skills { get; set; } = new();
-            public String role { get; set; }  // Worker, Employer, admin
-    }  
+            public bool isActive { get; set; } = true;
+         
+            //public String role { get; set; }  // Worker, Employer, admin
+    }
+    public class UserInfo
+    {
+        public Name name { get; set; }
+        public string Email { get; set; }
+        public Address Address { get; set; }
+        public string Phone { get; set; }
+
+    }
+    public class EmployeeUser : User
+    {
+        public List<Skill> Skills { get; set; } // List of User Skills along with proficiency level i.e. Beginner, Intermediate, Expert                                                
+        public List<string> Certifications { get; set; } // Certifications
+        public List<string> AppliedJobs { get; set; } // List of Job IDs Applied To
+
+        public string ResumeUrl { get; set; } // Link to Resume (Azure Blob Storage)
+
+        public string LinkedInProfileUrl { get; set; } // Contact Number (Optional)
+        
+        public string Role { get; set; } = "Employee";
+    }
+
+    public class EmployerUser : User
+    {
+        public string CompanyName { get; set; }
+
+        public string CompanyWebsiteUrl { get; set; }
+
+        public List<CompanyLocation> CompanyLocations { get; set; }
+        
+        public string Role { get; set; } = "Employer";     
+    }
+
+    public class CompanyLocation
+    {
+        public string CompanyAddress { get; set; }
+        public string CompanyCity { get; set; }
+
+        public string CompanyState { get; set; }
+        public string CompanyCountry { get; set; }
+    }
 }

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace SB.Infrastructure.Repositories.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository<T>
     {
-        Task<IEnumerable<User>> GetAllAsync();
-        Task<User> GetByIdAsync(string id);
-        Task AddAsync(User user);
-        Task UpdateAsync(User user);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> GetByIdAsync(string id);
+        Task AddAsync(T user);
+        Task UpdateAsync(T user);
         Task DeleteAsync(string id);
     }
 

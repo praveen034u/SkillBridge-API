@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SB.Application;
+using SB.Application.Features.Profile.Commands;
 using SB.Application.Queries;
 using SB.Domain.Model;
 using System.Collections.Generic;
@@ -32,6 +34,31 @@ public class JobsController : ControllerBase
         var result = await _mediator.Send(new SearchJobsBySkillsQuery(query));
         return Ok(result);
     }
+
+    [HttpPost("uploadResume")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadResume([FromForm] UploadResumeRequest1 req)
+    {
+        try
+        {
+            var fileUrl = await _mediator.Send(new UploadResumeCommandRequest(req.File));
+            return Ok(new { FileUrl = fileUrl });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
+    }
+
+    //[HttpPost("extract-skills")]
+    //public async Task<IActionResult> ExtractSkills([FromForm] IFormFile file)
+    //{
+    //    if (file == null || file.Length == 0)
+    //        return BadRequest("No file uploaded");
+
+    //    var result = await _mediator.Send(new ExtractSkillsCommand(file));
+    //    return Ok(result);
+    //}
 }
 
 
