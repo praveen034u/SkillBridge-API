@@ -140,7 +140,7 @@ builder.Services.AddHttpClient();
 //builder.Services.AddScoped<SB.Application.Features.Profile.Commands.UploadResumeCommandHandler>();
 // Access the configuration
 IConfiguration configuration = builder.Configuration;
-string blobConnectionString = "DefaultEndpointsProtocol=https;AccountName=skillbridgeblob;AccountKey=1xvZxvxLgb5XMM2Lq58w94/UBu5M+QCnlMHkmaHVDzCAJA5tOChcRTvRXi6AVrNgRC1XFw9tHJLn+AStWtp2wg==;EndpointSuffix=core.windows.net"; //configuration["ConnectionStringsBlob:AzureBlobStorage"];
+string blobConnectionString = configuration["ConnectionStringsBlob:AzureBlobStorage"];
 // Load settings from configuration
 builder.Services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureCognitiveSearch"));
 builder.Services.Configure<DocumentIntelligence>(configuration.GetSection("DocumentIntelligence"));
