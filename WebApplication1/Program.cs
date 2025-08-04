@@ -20,14 +20,14 @@ using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
-// Access the configuration
-IConfiguration configuration = builder.Configuration;
+
+
 
 // Register CosmosClient FIRST
 builder.Services.AddSingleton<CosmosClient>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var endpoint = configuration["CosmosDb:AccountEndpoint"];
+    var endpoint =  configuration["CosmosDb:AccountEndpoint"];
     var key = configuration["CosmosDb:AccountKey"];
 
     if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(key))
@@ -59,8 +59,9 @@ builder.Services.AddSingleton<ProfileDbContext>(sp =>
 
 builder.Services.AddSingleton<DocumentIntelligenceClient>(sp =>
 {
-    string endpoint = builder.Configuration["DocumentIntelligence:Endpoint"];
-    string apiKey = builder.Configuration["DocumentIntelligence:ApiKey"];
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var endpoint = configuration["DocumentIntelligence:Endpoint"];
+    var apiKey = configuration["DocumentIntelligence:ApiKey"];
 
     var credential = new AzureKeyCredential(apiKey);
     var client = new DocumentIntelligenceClient(new Uri(endpoint), credential);
@@ -103,6 +104,15 @@ builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssemblies(typeof(UploadResumeHandler).Assembly);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
+
 // Add Controllers
 builder.Services.AddControllers();
 //builder.Services.AddInfrastructure(builder.Configuration);
@@ -128,8 +138,9 @@ builder.Services.AddHttpClient();
 
 // Register UploadResumeCommandHandler
 //builder.Services.AddScoped<SB.Application.Features.Profile.Commands.UploadResumeCommandHandler>();
-
-string blobConnectionString = builder.Configuration["ConnectionStringsBlob:AzureBlobStorage"]; // configuration.GetConnectionString("ConnectionStringsBlob:AzureBlobStorage");
+// Access the configuration
+IConfiguration configuration = builder.Configuration;
+string blobConnectionString = "";// configuration["ConnectionStringsBlob:AzureBlobStorage"];
 // Load settings from configuration
 builder.Services.Configure<AzureCognitiveSearch>(configuration.GetSection("AzureCognitiveSearch"));
 builder.Services.Configure<DocumentIntelligence>(configuration.GetSection("DocumentIntelligence"));
@@ -157,12 +168,16 @@ builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 var app = builder.Build();
 builder.Logging.AddConsole();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
+// This ensures the app listens to the right port (usually from environment variable)
+var port ="8080";
+app.Urls.Add($"http://*:{port}");
+
+//if (app.Environment.IsDevelopment())
+//{
+app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArchitecture API v1"));
-}
+//}
 
 //builder.Services.AddAuthentication(options =>
 //{
@@ -175,8 +190,8 @@ if (app.Environment.IsDevelopment())
 //    options.ClientId = "Your-Client-ID";
 //    options.ClientSecret = "Your-Client-Secret";
 //});
-
-
+app.UseCors();
+app.MapGet("/health", () => Results.Ok("Healthy"));
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
