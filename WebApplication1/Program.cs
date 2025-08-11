@@ -16,13 +16,21 @@ using SB.Infrastructure.Persistence;
 using SB.Infrastructure.Repositories.Implementation;
 using SB.Infrastructure.Repositories.Interfaces;
 using SB.Infrastructure.Services;
+using System;
 using System.Reflection;
-
+using Microsoft.EntityFrameworkCore;
+using SB.Infrastructure.Persistence;
+using SB.Infrastructure; // Ensure this namespace is included for 
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
+//var port = "8080";
+//builder.WebHost.UseUrls($"http://*:{port}");
+// Add Supabase DbContext
+builder.Services.AddDbContext<SupabaseDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("SupabaseDb")));
+// Add DI for service
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 // Register CosmosClient FIRST
 builder.Services.AddSingleton<CosmosClient>(sp =>
 {
@@ -169,15 +177,15 @@ var app = builder.Build();
 builder.Logging.AddConsole();
 
 // This ensures the app listens to the right port (usually from environment variable)
-var port ="8080";
-app.Urls.Add($"http://*:{port}");
+//var port ="8080";
+//app.Urls.Add($"http://*:{port}");
 
-//if (app.Environment.IsDevelopment())
-//{
-app.UseDeveloperExceptionPage();
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArchitecture API v1"));
-//}
+}
 
 //builder.Services.AddAuthentication(options =>
 //{

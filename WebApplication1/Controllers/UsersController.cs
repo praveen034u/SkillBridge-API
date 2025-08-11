@@ -12,15 +12,27 @@ public class UsersController : ControllerBase
 {
     private readonly IUserService<EmployerUser> _employerService;
     private readonly IUserService<EmployeeUser> _employeeService;
+    private readonly IUserProfileService _userProfileService;
     private readonly IMediator _mediator;
 
-    public UsersController(IUserService<EmployeeUser> employeeService, IUserService<EmployerUser> employerService, IMediator mediator)
+    public UsersController(IUserProfileService userProfileService, IUserService<EmployeeUser> employeeService, IUserService<EmployerUser> employerService, IMediator mediator)
     {
         _employeeService = employeeService;
         _employerService = employerService;
+        _userProfileService= userProfileService;
         _mediator = mediator;
     }
+    [HttpPost("registerUserProfile")]
+    public async Task<IActionResult> RegisterEmployee([FromBody] RegisterUserProfileCommand command)
+    {
+        if (command == null)
+        {
+            return BadRequest("Invalid user data.");
+        }
 
+        var userId = await _mediator.Send(command);
+        return Ok(new { UserId = userId });
+    }
     [HttpPost("registerEmployee")]
     public async Task<IActionResult> RegisterEmployee([FromBody] RegisterUserCommand command)
     {
