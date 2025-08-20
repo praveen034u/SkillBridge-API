@@ -2,25 +2,21 @@ using Azure;
 using Azure.AI.DocumentIntelligence;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Win32;
+using Microsoft.EntityFrameworkCore;
 using SB.API;
 using SB.Application;
-using SB.Application.Commands;
 using SB.Application.Features.Profile.Commands;
 using SB.Application.Features.Users.Commands;
+using SB.Application.JobPostings.Handlers;
 using SB.Application.Queries;
 using SB.Application.Services.Implementation;
 using SB.Application.Services.Interface;
 using SB.Domain;
+using SB.Infrastructure; // Ensure this namespace is included for 
 using SB.Infrastructure.Persistence;
 using SB.Infrastructure.Repositories.Implementation;
 using SB.Infrastructure.Repositories.Interfaces;
 using SB.Infrastructure.Services;
-using System;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using SB.Infrastructure.Persistence;
-using SB.Infrastructure; // Ensure this namespace is included for 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +27,7 @@ builder.Services.AddDbContext<SupabaseDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SupabaseDb")));
 // Add DI for service
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IJobPostingRepository, JobPostingRepository>();
 // Register CosmosClient FIRST
 builder.Services.AddSingleton<CosmosClient>(sp =>
 {
@@ -162,16 +159,12 @@ builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
 // Register BlobStorageService
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
-
-
 //builder.Services.Configure<AzureSearchSettings>(
 //    builder.Configuration.GetSection("AzureSearch"));
 
 // Register MediatR (Ensure Application assembly is included)
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly));
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly));
-
-
 
 var app = builder.Build();
 builder.Logging.AddConsole();
