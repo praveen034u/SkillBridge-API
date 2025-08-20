@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SB.Domain.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace SB.Application.JobPostings.Commands
         Guid JobId,
         string Title,
         string Description,
-        string RequiredSkills,
+        List<string> RequiredSkills,
         string Location,
         string EmploymentType,
-        string SalaryRange,
+        SalaryRange SalaryRange,
         int? ExperienceRequired,
         DateTime? ApplicationDeadline,
         string Status

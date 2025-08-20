@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SB.Domain.Model;
 
 namespace SB.Application.JobPostings.Commands
 {
@@ -16,10 +17,10 @@ namespace SB.Application.JobPostings.Commands
         Guid EmployerId,
         string Title,
         string Description,
-        string RequiredSkills,
+        List<string> RequiredSkills,
         string Location,
         string EmploymentType,
-        string SalaryRange,
+        SalaryRange SalaryRange,
         int? ExperienceRequired,
         DateTime? ApplicationDeadline
     ) : IRequest<Guid>;

@@ -3,6 +3,7 @@ using Azure.AI.DocumentIntelligence;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using SB.API;
 using SB.Application;
 using SB.Application.Features.Profile.Commands;
@@ -23,8 +24,11 @@ var builder = WebApplication.CreateBuilder(args);
 //var port = "8080";
 //builder.WebHost.UseUrls($"http://*:{port}");
 // Add Supabase DbContext
-builder.Services.AddDbContext<SupabaseDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("SupabaseDb")));
+//builder.Services.AddDbContext<SupabaseDbContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("SupabaseDb")));
+
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("SupabaseDb"));
+builder.Services.AddDbContext<SupabaseDbContext>(options => options.UseNpgsql(dataSourceBuilder.EnableDynamicJson().Build()));
 // Add DI for service
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IJobPostingRepository, JobPostingRepository>();

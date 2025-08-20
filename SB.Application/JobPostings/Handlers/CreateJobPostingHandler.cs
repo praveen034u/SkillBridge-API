@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
 using SB.Application.JobPostings.Commands;
 using SB.Application.Services.Interface;
 using SB.Domain.Model;
