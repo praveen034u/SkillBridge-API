@@ -1,10 +1,5 @@
 ﻿using MediatR;
 using SB.Domain.Model;
-using System;
-using System.Collections.Generic;
-using MediatR;
-using System.Collections.Generic;
-using SB.Domain.Model;
 
 namespace SB.Application.Queries;
 

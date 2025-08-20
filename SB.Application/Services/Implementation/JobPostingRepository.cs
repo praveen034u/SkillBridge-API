@@ -1,66 +1,62 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SB.Application.Services.Interface;
-using SB.Domain.Model;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Options;
-
-using SB.Domain.Model;
 using SB.Domain;
+using SB.Domain.Model;
+using SB.Infrastructure;
 
 
 namespace SB.Application.Services.Implementation
 {
     public class JobPostingRepository : IJobPostingRepository
     {
-        private readonly Container _container;
+        private readonly SupabaseDbContext _context;
 
-        public JobPostingRepository(IOptions<CosmosDb> settings, CosmosClient cosmosClient)
+        public JobPostingRepository(SupabaseDbContext context)
         {
-            _container = cosmosClient.GetContainer("SB_database","SB_Container");//, "JobPostings");
-           // _container = await database.Database.CreateContainerIfNotExistsAsync("JobPostings", "/categoryId");
+            _context = context;
         }
 
         public async Task<JobPosting> CreateJobPostingAsync(JobPosting job)
         {
-           // await _container.CreateItemAsync(job, new PartitionKey(job.Id));
-            await _container.CreateItemAsync(job, new PartitionKey(job.CategoryId.ToString()));
+            _context.JobPosting.Add(job);
+            await _context.SaveChangesAsync();
             return job;
         }
 
-        public async Task<JobPosting> GetJobPostingByIdAsync(string jobId)
+        public async Task<JobPosting?> GetJobPostingByIdAsync(string jobId)
         {
-            try
-            {
-                ItemResponse<JobPosting> response = await _container.ReadItemAsync<JobPosting>(jobId, new PartitionKey(jobId));
-                return response.Resource;
-            }
-            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
+            if (!Guid.TryParse(jobId, out var guidId))
                 return null;
-            }
+            return await _context.JobPosting.FirstOrDefaultAsync(j => j.JobId == guidId);
         }
 
         public async Task<List<JobPosting>> GetAllJobPostingsAsync()
         {
-            var query = _container.GetItemQueryIterator<JobPosting>("SELECT * FROM c");
-            List<JobPosting> results = new List<JobPosting>();
-            while (query.HasMoreResults)
-            {
-                foreach (var item in await query.ReadNextAsync())
-                {
-                    results.Add(item);
-                }
-            }
-            return results;
+            return await _context.JobPosting.ToListAsync();
         }
 
-        public async Task DeleteJobPostingAsync(string jobId)
+        public async Task<bool> DeleteJobPostingAsync(string jobId)
         {
-            await _container.DeleteItemAsync<JobPosting>(jobId, new PartitionKey(jobId));
+            if (!Guid.TryParse(jobId, out var guidId))
+                return false;
+            var job = await _context.JobPosting.FirstOrDefaultAsync(j => j.JobId == guidId);
+            if (job == null) return false;
+
+            _context.JobPosting.Remove(job);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateJobPostingAsync(JobPosting jobPosting)
+        {
+            if (!_context.JobPosting.Any(j => j.JobId == jobPosting.JobId))
+                return false;
+
+            _context.Entry(jobPosting).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -6,19 +6,18 @@ namespace SB.Domain.Model
 {
     public class JobPosting
     {
-        [JsonProperty("id")]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        [JsonProperty("categoryId")]
-        public string CategoryId { get; set; } = Guid.NewGuid().ToString();
-
-        public string EmployerId { get; set; }
+        public Guid JobId { get; set; }
+        public Guid EmployerId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        //public List<string> Skills { get; set; }
-        public string Skills { get; set; }
+        public string RequiredSkills { get; set; } // store JSONB as string in EF
         public string Location { get; set; }
-        public DateTime? PostedDate { get; set; } = DateTime.UtcNow;
-        public string JobType { get; set; } // Full-time, Part-time, Contract
-        public decimal Salary { get; set; }
+        public string EmploymentType { get; set; }
+        public string SalaryRange { get; set; } // JSONB as string
+        public int? ExperienceRequired { get; set; }
+        public DateTime? ApplicationDeadline { get; set; }
+        public string Status { get; set; } = "open";
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

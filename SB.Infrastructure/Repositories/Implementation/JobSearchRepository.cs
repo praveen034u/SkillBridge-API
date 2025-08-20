@@ -1,19 +1,10 @@
-﻿using Azure.Search.Documents.Models;
-using Azure.Search.Documents;
-using Azure;
-using Microsoft.Extensions.Options;
-using SB.Domain.Model;
-using SB.Infrastructure.Repositories.Interfaces;
-using System;
-using Azure;
+﻿using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Microsoft.Extensions.Options;
-using SB.Domain.Model;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SB.Domain;
+using SB.Domain.Model;
+using SB.Infrastructure.Repositories.Interfaces;
 
 namespace SB.Infrastructure.Repositories.Implementation;
 
