@@ -97,6 +97,7 @@ builder.Services.AddSingleton<JobSearchService>();
 builder.Services.AddSingleton<IJobSearchRepository, JobSearchRepository>();
 builder.Services.AddSingleton<IUserProfileRepository, UserProfileRepository>();
 
+builder.Services.AddSingleton<IEmployerProfileRepository, UserProfileRepository>();
 builder.Services.AddMediatR(config =>
 {
     // Register handlers in the current assembly
