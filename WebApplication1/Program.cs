@@ -104,7 +104,7 @@ builder.Services.AddMediatR(config =>
     config.RegisterServicesFromAssembly(typeof(RegisterUserCommandHandler).Assembly);
     config.RegisterServicesFromAssembly(typeof(UploadResumeCommandHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(SearchJobsQueryHandler).Assembly); 
-    config.RegisterServicesFromAssembly(typeof(CreateJobPostingHandler).Assembly); 
+    config.RegisterServicesFromAssembly(typeof(CreateEmployerProfileHandler).Assembly); 
     config.RegisterServicesFromAssembly(typeof(SearchJobsBySkillsQueryHandler).Assembly);
     config.RegisterServicesFromAssemblies(typeof(UploadResumeHandler).Assembly);
 });
